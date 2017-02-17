@@ -58,12 +58,12 @@ func slackStart(token string) (wsurl, id string, err error) {
 	if err != nil {
 		return
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("API request failed with code %d", resp.StatusCode)
 		return
 	}
 	body, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
+	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
