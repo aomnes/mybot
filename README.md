@@ -1,7 +1,7 @@
 
 # mybot
 
-`mybot` ajout de la meteo au bot de ###rapidloop/mybot<br/>
+`mybot` ajout de la meteo au bot de @rapidloop/mybot<br/>
 
 Pour installer:<br/>
 `go run mybot.go slack.go slack-bot-token`<br/>
