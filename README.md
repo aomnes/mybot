@@ -1,10 +1,19 @@
 
 # mybot
 
-`mybot` is an working Slack bot written in Go. Fork it and use it to build
-your very own cool Slack bot!
+`mybot` about de la meteo au bot de rapidloop/mybot
 
-Check the [blog post](https://www.opsdash.com/blog/slack-bot-in-golang.html)
-for a description of mybot internals.
+Pour installer:
+`go run mybot.go slack.go slack-bot-token`
 
-Follow us on Twitter today! [@therapidloop](https://twitter.com/therapidloop)
+# Bot slack:
+## Creer un nouveau bot sur slack
+### Slack-bot-token == API Token
+
+# API Meteo
+## Creer un compte pour l'api meteo sur: https://darksky.net/dev/
+### Ajouter la varible environnement API_FORECAST avec votre API token
+
+![API_FORECAST](https://darksky.net/dev/img/attribution/poweredby.png)<br/>
+
+![EXAMPLE](https://github.com/aomnes/mybot/blob/master/Image/Image_bit.png)<br/>
