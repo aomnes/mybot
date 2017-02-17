@@ -1,14 +1,14 @@
 
 # mybot
 
-`mybot` about de la meteo au bot de rapidloop/mybot
+`mybot` about de la meteo au bot de rapidloop/mybot<br/>
 
-Pour installer:
-`go run mybot.go slack.go slack-bot-token`
+Pour installer:<br/>
+`go run mybot.go slack.go slack-bot-token`<br/>
 
 ## Sur Slack
-`@nom_bot meteo ville`
-`@nom_bot stock code _entreprise_bourse`
+`@nom_bot meteo ville`<br/>
+`@nom_bot stock code _entreprise_bourse`<br/>
 
 
 ## Bot slack:
