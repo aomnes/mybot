@@ -14,6 +14,6 @@ Pour installer:
 Creer un compte pour l'api meteo sur: https://darksky.net/dev/<br/>
 Ajouter la varible environnement API_FORECAST avec votre API token<br/>
 
-![API_FORECAST](https://darksky.net/dev/img/attribution/poweredby.png =100x)<br/>
+![API_FORECAST](https://darksky.net/dev/img/attribution/poweredby.png=100x)<br/>
 
 ![EXAMPLE](https://github.com/aomnes/mybot/blob/master/Image/Image_bit.png)<br/>
