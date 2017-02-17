@@ -27,14 +27,78 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"log"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
+type Info struct {
+	PlaceID string `json:"place_id"`
+	Licence string `json:"licence"`
+	OsmType string `json:"osm_type"`
+	OsmID string `json:"osm_id"`
+	Boundingbox []string `json:"boundingbox"`
+	Lat string `json:"lat"`
+	Lon string `json:"lon"`
+	DisplayName string `json:"display_name"`
+	Class string `json:"class"`
+	Type string `json:"type"`
+	Importance float64 `json:"importance"`
+	Icon string `json:"icon"`
+	Address struct {
+		City string `json:"city"`
+		County string `json:"county"`
+		State string `json:"state"`
+		Country string `json:"country"`
+		CountryCode string `json:"country_code"`
+	} `json:"address"`
+}
+
+type Meteo struct {
+	Latitude float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Timezone string `json:"timezone"`
+	Offset int `json:"offset"`
+	Daily struct {
+		Data []struct {
+			Time int `json:"time"`
+			Summary string `json:"summary"`
+			Icon string `json:"icon"`
+			SunriseTime int `json:"sunriseTime"`
+			SunsetTime int `json:"sunsetTime"`
+			MoonPhase float64 `json:"moonPhase"`
+			PrecipIntensity float64 `json:"precipIntensity"`
+			PrecipIntensityMax float64 `json:"precipIntensityMax"`
+			PrecipIntensityMaxTime int `json:"precipIntensityMaxTime"`
+			PrecipProbability float64 `json:"precipProbability"`
+			PrecipType string `json:"precipType"`
+			TemperatureMin float64 `json:"temperatureMin"`
+			TemperatureMinTime int `json:"temperatureMinTime"`
+			TemperatureMax float64 `json:"temperatureMax"`
+			TemperatureMaxTime int `json:"temperatureMaxTime"`
+			ApparentTemperatureMin float64 `json:"apparentTemperatureMin"`
+			ApparentTemperatureMinTime int `json:"apparentTemperatureMinTime"`
+			ApparentTemperatureMax float64 `json:"apparentTemperatureMax"`
+			ApparentTemperatureMaxTime int `json:"apparentTemperatureMaxTime"`
+			DewPoint float64 `json:"dewPoint"`
+			Humidity float64 `json:"humidity"`
+			WindSpeed float64 `json:"windSpeed"`
+			WindBearing int `json:"windBearing"`
+			Visibility float64 `json:"visibility"`
+			CloudCover float64 `json:"cloudCover"`
+			Pressure float64 `json:"pressure"`
+			Ozone float64 `json:"ozone"`
+		} `json:"data"`
+	} `json:"daily"`
+}
+
 func main() {
+	fmt.Println(time.Now().Unix())
 	if len(os.Args) != 2 {
 		fmt.Fprintf(os.Stderr, "usage: mybot slack-bot-token\n")
 		os.Exit(1)
@@ -62,6 +126,11 @@ func main() {
 					postMessage(ws, m)
 				}(m)
 				// NOTE: the Message object is copied, this is intentional
+			} else if len(parts) == 3 && parts[1] == "meteo" {
+				go func(m Message) {
+					m.Text = getMeteo(parts[2])
+					postMessage(ws, m)
+				}(m)
 			} else {
 				// huh?
 				m.Text = fmt.Sprintf("sorry, that does not compute\n")
@@ -69,6 +138,90 @@ func main() {
 			}
 		}
 	}
+}
+
+func getMeteo(sym string) string {
+	sym = strings.ToUpper(sym)
+	url := fmt.Sprintf("http://nominatim.openstreetmap.org/search/%s?format=json&addressdetails=1&limit=1", sym)
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	defer resp.Body.Close()
+	htmlData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	bytes := []byte(htmlData)
+	var infos []Info
+	err = json.Unmarshal(bytes, &infos)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	if infos[0].Type != "city" &&  infos[0].Type != "administrative" {
+		return fmt.Sprintf(":x: \"%s\" n'est pas une ville", sym)
+	} else {
+		//fmt.Printf("Lon: %s et Lat: %s\n", infos[0].Lon, infos[0].Lat)
+		return getCoord(infos[0].Lon, infos[0].Lat)
+	}
+}
+
+func icon(icon string) string {
+/*
+clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy,
+partly-cloudy-day partly-cloudy-night hail, thunderstorm, or tornado
+*/
+	switch icon {
+		case "clear-day":
+			return ":sunny:"//
+		case "clear-night":
+			return ":sunny:"
+		case "rain":
+			return ":rain_cloud:"//
+		case "snow":
+			return ":snow_cloud:"//
+		case "sleet":
+			return ":snowflake: :fire:"//
+		case "wind":
+			return ":wind_blowing_face:"//
+		case "fog":
+			return ":foggy:"//
+		case "cloudy":
+			return ":cloud:"//
+		case "partly-cloudy-day":
+			return ":mostly_sunny:"//
+		case "hail":
+			return "hail"//
+		case "thunderstorm":
+			return ":thunder_cloud_and_rain:"//
+		case "tornado":
+			return ":tornado:"//
+		case "partly-cloudy-night":
+			return ":mostly_sunny:"//
+		default:
+			return icon
+	}
+}
+
+func getCoord(Lon string, Lat string) string {
+	time := int32(time.Now().Unix())
+	url := fmt.Sprintf("https://api.darksky.net/forecast/%s/%s,%s,%d?&units=si&exclude=currently,minutely,hourly&lang=fr", os.Getenv("API_FORECAST"), Lat, Lon, time)
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	defer resp.Body.Close()
+	htmlData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	bytes := []byte(htmlData)
+	var meteos Meteo
+	err = json.Unmarshal(bytes, &meteos)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	return fmt.Sprintf("%s :arrow_right: %s || Min: %.1f°C et Max: %.1f°C", icon(meteos.Daily.Data[0].Icon), meteos.Daily.Data[0].Summary, meteos.Daily.Data[0].TemperatureMin, meteos.Daily.Data[0].TemperatureMax)
 }
 
 // Get the quote via Yahoo. You should replace this method to something
