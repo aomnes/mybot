@@ -39,15 +39,17 @@ import (
 // These two structures represent the response of the Slack API rtm.start.
 // Only some fields are included. The rest are ignored by json.Unmarshal.
 
+// responseRtmStart struct result json from api real time slack
 type responseRtmStart struct {
 	Ok    bool         `json:"ok"`
 	Error string       `json:"error"`
-	Url   string       `json:"url"`
+	URL   string       `json:"url"`
 	Self  responseSelf `json:"self"`
 }
 
+// responseSelf struct result json from api real time slack
 type responseSelf struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 // slackStart does a rtm.start, and returns a websocket URL and user ID. The
@@ -78,17 +80,17 @@ func slackStart(token string) (wsurl, id string, err error) {
 		return
 	}
 
-	wsurl = respObj.Url
-	id = respObj.Self.Id
+	wsurl = respObj.URL
+	id = respObj.Self.ID
 	return
 }
-
-// These are the messages read off and written into the websocket. Since this
-// struct serves as both read and write, we include the "Id" field which is
-// required only for writing.
-
+/*
+Message are the messages read off and written into the websocket. Since this
+struct serves as both read and write, we include the "Id" field which is
+required only for writing.
+*/
 type Message struct {
-	Id      uint64 `json:"id"`
+	ID      uint64 `json:"id"`
 	Type    string `json:"type"`
 	Channel string `json:"channel"`
 	Text    string `json:"text"`
@@ -102,7 +104,7 @@ func getMessage(ws *websocket.Conn) (m Message, err error) {
 var counter uint64
 
 func postMessage(ws *websocket.Conn, m Message) error {
-	m.Id = atomic.AddUint64(&counter, 1)
+	m.ID = atomic.AddUint64(&counter, 1)
 	return websocket.JSON.Send(ws, m)
 }
 

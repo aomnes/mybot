@@ -37,6 +37,7 @@ import (
 	"time"
 )
 
+// Info struct result json from api Geocoding
 type Info struct {
 	PlaceID     string   `json:"place_id"`
 	Licence     string   `json:"licence"`
@@ -59,6 +60,7 @@ type Info struct {
 	} `json:"address"`
 }
 
+// Meteo struct result json from api Forecast
 type Meteo struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
@@ -160,10 +162,9 @@ func getMeteo(sym string) string {
 	}
 	if infos[0].Type != "city" && infos[0].Type != "administrative" {
 		return fmt.Sprintf(":x: \"%s\" n'est pas une ville", sym)
-	} else {
-		//fmt.Printf("Lon: %s et Lat: %s\n", infos[0].Lon, infos[0].Lat)
-		return getCoord(infos[0].Lon, infos[0].Lat)
 	}
+	//fmt.Printf("Lon: %s et Lat: %s\n", infos[0].Lon, infos[0].Lat)
+	return getCoord(infos[0].Lon, infos[0].Lat)
 }
 
 func icon(icon string) string {
