@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/aomnes/mybot)](https://goreportcard.com/report/github.com/aomnes/mybot)<br/>
 
 # mybot
 
