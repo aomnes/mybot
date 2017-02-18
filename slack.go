@@ -83,6 +83,7 @@ func slackStart(token string) (wsurl, id string, err error) {
 	id = respObj.Self.ID
 	return
 }
+
 /*
 Message are the messages read off and written into the websocket. Since this
 struct serves as both read and write, we include the "Id" field which is
