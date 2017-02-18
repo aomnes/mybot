@@ -1,5 +1,4 @@
 /*
-
 mybot - Illustrative Slack bot in Go
 
 Copyright (c) 2015 RapidLoop
